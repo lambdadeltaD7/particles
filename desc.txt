@@ -1,0 +1,40 @@
+Particle physics simulator.
+Starting with N particles of small mass in random places.
+Using F, m, w, v, dt to compute new coords.
+Firstly, make mvp
+after that do some vector optimization
+mb try to do contrlos via SDL_EVENTS?
+after that add another thread/process to control system lifecycle in live mode
+mb add some global attractor like blackhole
+add web server
+
+struct Particle{
+x, y, mass, vx, vy 
+radius = f(mass)
+render particle according to radius
+}
+
+while(1){
+	compute_new_positions();
+	render_all();
+}
+
+compute_new_positions(){
+	for p1 in particles:
+		F_total = (0,0)
+		for p2 in particles\p1:
+			dx = p2.x - p1.x
+			dy = p2.y - p1.y
+			d=dist(p1,p2) =dx**2 + dy**2 
+			|F| = Gm1m2/d^2 or smthng
+			F = |F| * (dx/d, dy/d)
+			F_total += F
+		//F=ma
+		a = F / p1.m
+		p1.v = p1.v + a * dt
+		p1.pos = p1.pos + p1.v * dt 
+}	
+
+
+
+
