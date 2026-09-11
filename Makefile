@@ -1,8 +1,6 @@
 
-
-
-
 all: main
 
-main: main.cpp
-	g++ main.cpp -lSDL3 -o main
+
+main: main.cpp vec.cpp world.cpp
+	g++ *.cpp -lSDL3 -o main

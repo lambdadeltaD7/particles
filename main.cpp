@@ -20,7 +20,7 @@ int main()
 	SDL_Event event;
 
 	std::mt19937_64 rgen(RANDOM_SEED);
-
+	auto particles = spawn_particles(rgen);
 
 	while(running)
 	{

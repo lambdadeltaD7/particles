@@ -12,9 +12,9 @@ const int CNT_INIT_PARTICLES = 64;
 const int RANDOM_SEED = 67;
 const int MAX_MASS = 30;
 const int MIN_MASS = 1;
-const float GRAVITATIONAL_CONSTANT = 6.67e-3;
+const float GRAVITATIONAL_CONSTANT = 6.67e-5;
 const float TIME_DELTA_SEC = 1.1; 
-
+const float DIST_EPS = 1e-2;
 
 struct Particle
 {
