@@ -6,15 +6,15 @@
 #include <unordered_map>
 
 
-const int WINDOW_WIDTH  = 800;
+const int WINDOW_WIDTH  = 1200;
 const int WINDOW_HEIGHT = 800;
-const int CNT_INIT_PARTICLES = 64;
+const int CNT_INIT_PARTICLES = 1;
 const int RANDOM_SEED = 67;
-const int MAX_MASS = 30;
-const int MIN_MASS = 1;
-const float GRAVITATIONAL_CONSTANT = 6.67e-5;
+const int MAX_MASS = 15;
+const int MIN_MASS = 10;
+const float GRAVITATIONAL_CONSTANT = 6.67e-2;
 const float TIME_DELTA_SEC = 1.1; 
-const float DIST_EPS = 1e-2;
+const float DIST_EPS = 1e-1;
 
 struct Particle
 {

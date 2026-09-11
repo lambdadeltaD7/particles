@@ -20,3 +20,6 @@ public:
 	friend Vec operator * (float a, const Vec& v1);
 	// float norm() const;
 };
+
+
+float dot(const Vec& v1, const Vec& v2);

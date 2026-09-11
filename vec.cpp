@@ -1,6 +1,5 @@
 #include "vec.h"
 
-
 Vec operator + (const Vec& v1, const Vec& v2)
 {
 	Vec res = v1;

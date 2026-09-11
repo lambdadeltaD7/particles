@@ -8,12 +8,17 @@
 
 int main()
 {
+	bool fullscreen = false;
+	SDL_WindowFlags flags = 
+		fullscreen & SDL_WINDOW_FULLSCREEN |
+		SDL_WINDOW_RESIZABLE;
+
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 
 	SDL_Init(SDL_INIT_VIDEO);
 
-	SDL_CreateWindowAndRenderer("title here", WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE, &window, &renderer);
+	SDL_CreateWindowAndRenderer("title here", WINDOW_WIDTH, WINDOW_HEIGHT, flags,  &window, &renderer);
 	SDL_SetRenderLogicalPresentation(renderer, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
 	bool running = true;
@@ -21,6 +26,8 @@ int main()
 
 	std::mt19937_64 rgen(RANDOM_SEED);
 	auto particles = spawn_particles(rgen);
+	particles[0].v.x = 0.04;
+	particles[0].v.y = 0.08;
 
 	while(running)
 	{
