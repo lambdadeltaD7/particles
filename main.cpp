@@ -1,4 +1,5 @@
 #include <SDL3/SDL.h>
+#include <iostream>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_pixels.h>
@@ -26,9 +27,13 @@ int main()
 
 	std::mt19937_64 rgen(RANDOM_SEED);
 	auto particles = spawn_particles(rgen);
-	particles[0].v.x = 0.04;
-	particles[0].v.y = 0.08;
+	// particles[0].m=50;
+	// particles[1].m=41;
+	// particles[2].m=32;
+	// particles[3].m=23;
 
+	update_particles_state(particles);
+	render_all(renderer, particles);
 	while(running)
 	{
 		while(SDL_PollEvent(&event)){
@@ -38,7 +43,6 @@ int main()
 
 		update_particles_state(particles);
 		render_all(renderer, particles);
-
 	}
 
 	SDL_DestroyWindow(window);

@@ -10,14 +10,19 @@ std::unordered_map<int, Particle> spawn_particles(
 {
 	int next_particle_id = 0;
 	std::unordered_map<int, Particle> particles;
+	std::uniform_real_distribution<double> dist(0, 1e-7);
 
 	for(int i=0; i<CNT_INIT_PARTICLES; ++i)
 	{
 		Particle p;
 		p.pos.x = rgen() % WINDOW_WIDTH;
 		p.pos.y = rgen() % WINDOW_HEIGHT;
-		// what about speed init?
-		p.m = MIN_MASS + rgen() % MAX_MASS;
+
+		p.v.x = dist(rgen);
+		p.v.y = dist(rgen);
+
+		p.m = 1 + rgen() % MAX_MASS;
+		p.m = std::max((float)MIN_MASS, p.m);
 		particles[next_particle_id++] = p;
 	}
 
@@ -25,60 +30,72 @@ std::unordered_map<int, Particle> spawn_particles(
 }
 
 Vec is_out(const Particle& p){
-	if(p.pos.x < 0) return Vec(0,1);
-	if(p.pos.y < 0) return Vec(1,0);
-	if(p.pos.x > WINDOW_WIDTH) return Vec(0,-1);
-	if(p.pos.y > WINDOW_HEIGHT) return Vec(-1,0);
+	if(p.pos.x < 0) return Vec(1,0);
+	if(p.pos.y < 0) return Vec(0,1);
+	if(p.pos.x > WINDOW_WIDTH-1) return Vec(-1,0);
+	if(p.pos.y > WINDOW_HEIGHT-1) return Vec(0,-1);
 	return Vec(0,0);
 }
 
-float norm(const Vec& v)
-{
-	return sqrt(v.x * v.x + v.y * v.y);
-}
 
 void handle_reflection(Particle& p)
 {
-	Vec res = is_out(p);
-	if(res.x==0 && res.y==0)
-	{
+	Vec n = is_out(p);
+	if(n.x==0 && n.y==0)
 		return;
-	}
-
-	printf("bord_vec: (%f.3f, %f.3f)\n", res.x, res.y);
 
 	// time travel or smthn idk
 	p.pos -= p.v * TIME_DELTA_SEC;
 	
-	float dot = p.v.x * res.x + p.v.y * res.y; 
-	float v_norm = norm(p.v);
-	// div by zero?
-	float v_cos = dot / v_norm;
-	float v_sin = sqrt(1 - v_cos * v_cos);
-	printf("c=%f.3f s=%f.3f\n", v_cos, v_sin);
-	printf("d=%f.3f\n", v_cos*v_cos + v_sin*v_sin);
-	printf("n1=%f.3f\n", v_norm);
-	if(v_cos <= 0)
-	{
-		v_sin *= -1;
-	}
+	float dot = p.v.x * n.x + p.v.y * n.y;
 
-	p.v.x = v_cos * p.v.x - v_sin * p.v.y; 
-	p.v.y = v_sin * p.v.x + v_cos * p.v.y; 
-	printf("n2=%f.3f\n\n", norm(p.v));
-
-	std::cout << std::flush;
+    p.v.x -= 2 * dot * n.x;
+    p.v.y -= 2 * dot * n.y;
 }
 
 void update_particles_state(
 	std::unordered_map<int, Particle>& particles
 )
 {
+	// update forces
+	std::unordered_map<int, Vec> Fs;
 	for(auto& [id1,p1] : particles)
 	{
-		Vec F_total(0,0);
+		Fs[id1] = Vec(0,0);
+		for(auto it=particles.begin(); it!=particles.end(); ++it)
+		{
+			auto& [id2,p2] = *it;
+			if(id1 == id2)
+				continue;
 
-		for(auto it=particles.begin(); it!=particles.end();)
+			float dx = p2.pos.x - p1.pos.x;
+			float dy = p2.pos.y - p1.pos.y;
+			float d = sqrt(dx*dx + dy*dy);
+
+			float F_abs = GRAVITATIONAL_CONSTANT * p1.m * p2.m / (d * d + NONZERO);
+			Vec F_direction(dx/d, dy/d);
+			Fs[id1] += (F_abs * F_direction);
+		}
+	}
+
+	// update velocity
+	for(auto& [id1,p1] : particles)
+	{
+		Vec a = Fs[id1] * (1 / p1.m);
+		p1.v += a * TIME_DELTA_SEC;
+	}
+	
+	// update positions
+	for(auto& [id,p] : particles)
+	{
+		p.pos += p.v * TIME_DELTA_SEC;
+		handle_reflection(p);
+	}
+	
+	// handle collisions
+	for(auto& [id1,p1] : particles)
+	{
+		for(auto it=particles.begin(); it!=particles.end(); )
 		{
 			auto& [id2,p2] = *it;
 			if(id1 == id2)
@@ -90,32 +107,23 @@ void update_particles_state(
 			float dx = p2.pos.x - p1.pos.x;
 			float dy = p2.pos.y - p1.pos.y;
 			float d = sqrt(dx*dx + dy*dy);
-			// merge p2 into p1 if they are close
-			if(d < DIST_EPS){
-				// rework according to radius
-				// printf("mrg %d into %d\n", id2, id1);
-				// std::cout << std::flush;
+			
+			if(d < std::min(p1.m, p2.m))
+			{
+				float inv = (1 / (p1.m + p2.m)); 
+				p1.v = inv * (p1.m * p1.v + p2.m * p2.v);
+				p1.pos = inv * (p1.m * p1.pos + p2.m * p2.pos);
+				// printf("mrg %d to %d m2=%.3f, m1=%.3f\n", id2, id1, p2.m, p1.m);
 				p1.m += p2.m;
+				// printf("new_m=%.3f\n\n", p1.m);
 				it = particles.erase(it);
 				continue;
 			}
-			float F_abs = GRAVITATIONAL_CONSTANT * p1.m * p2.m / (d * d);
-			Vec F_direction(dx/d, dy/d);
-			F_total += (F_abs * F_direction);
 
 			++it;
 		}
-
-		Vec a = F_total * (1 / p1.m);
-		p1.v += a * TIME_DELTA_SEC;
 	}
 
-
-	for(auto& [id,p] : particles)
-	{
-		p.pos += p.v * TIME_DELTA_SEC;
-		handle_reflection(p);
-	}
 }
 
 void render_all(
@@ -125,6 +133,14 @@ void render_all(
 {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
+
+	SDL_FRect re;
+	re.x=0;
+	re.y=0;
+	re.w=WINDOW_WIDTH;
+	re.h=WINDOW_HEIGHT;
+	SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
+	SDL_RenderRect(renderer, &re);
 
 	render_all_particles(renderer, particles);
 
