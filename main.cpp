@@ -9,7 +9,7 @@
 
 int main()
 {
-	bool fullscreen = false;
+	bool fullscreen = true;
 	SDL_WindowFlags flags = 
 		fullscreen & SDL_WINDOW_FULLSCREEN |
 		SDL_WINDOW_RESIZABLE;

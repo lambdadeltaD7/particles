@@ -10,7 +10,7 @@ std::unordered_map<int, Particle> spawn_particles(
 {
 	int next_particle_id = 0;
 	std::unordered_map<int, Particle> particles;
-	std::uniform_real_distribution<double> dist(0, 1e-7);
+	std::uniform_real_distribution<double> dist(0, 1e-6);
 
 	for(int i=0; i<CNT_INIT_PARTICLES; ++i)
 	{
@@ -167,8 +167,8 @@ void render_particle(
 	SDL_FRect rect;
 	rect.x = p.pos.x - p.m - 1;
 	rect.y = p.pos.y - p.m - 1;
-	rect.w = 2 * p.m + 1;
-	rect.h = 2 * p.m + 1;
+	rect.w = (2 * p.m + 1) / 2;
+	rect.h = (2 * p.m + 1) / 2;
 
 	SDL_RenderFillRect(renderer, &rect);
 }
