@@ -163,8 +163,8 @@ void render_all_particles(
 
 Vec map_cords(float x, float y, DisplayConfig dc)
 {
-	float x_display = (x - (dc.x0 - (float)WINDOW_WIDTH / 2)) / dc.scale;
-	float y_display = (y - (dc.y0 - (float)WINDOW_HEIGHT / 2)) / dc.scale;
+	float x_display = (x - dc.x0) / dc.scale + (float)WINDOW_WIDTH / 2;
+	float y_display = (y - dc.y0) / dc.scale + (float)WINDOW_HEIGHT / 2;
 	return Vec(x_display, y_display);
 }
 	

@@ -6,8 +6,8 @@
 #include <unordered_map>
 
 
-const int WINDOW_WIDTH  = 800;
-const int WINDOW_HEIGHT = 700;
+const int WINDOW_WIDTH  = 1200;
+const int WINDOW_HEIGHT = 800;
 const int CNT_INIT_PARTICLES = 8;
 const int RANDOM_SEED = 11;
 const int MAX_MASS = 2;

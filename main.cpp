@@ -13,7 +13,7 @@ int main()
 {
 	DisplayConfig dc;
 
-	bool fullscreen = false;
+	bool fullscreen = true;
 	SDL_WindowFlags flags = 
 		fullscreen & SDL_WINDOW_FULLSCREEN |
 		SDL_WINDOW_RESIZABLE;
@@ -63,6 +63,8 @@ int main()
 					dc.y0 += dc.scale * WINDOW_HEIGHT * 0.1;
 				else if(event.key.key == SDLK_UP)
 					dc.y0 -= dc.scale * WINDOW_HEIGHT * 0.1;
+				else if(event.key.key == SDLK_C)
+					dc = DisplayConfig{};
 				print_dc(dc);	
 			}
 		}
