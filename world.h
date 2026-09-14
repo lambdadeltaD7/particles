@@ -6,11 +6,11 @@
 #include <unordered_map>
 
 
-const int WINDOW_WIDTH  = 1200;
-const int WINDOW_HEIGHT = 800;
-const int CNT_INIT_PARTICLES = 64;
-const int RANDOM_SEED = 67;
-const int MAX_MASS = 5;
+const int WINDOW_WIDTH  = 800;
+const int WINDOW_HEIGHT = 700;
+const int CNT_INIT_PARTICLES = 8;
+const int RANDOM_SEED = 11;
+const int MAX_MASS = 2;
 const int MIN_MASS = 1;
 const float GRAVITATIONAL_CONSTANT = 6.67e-11;
 const float TIME_DELTA_SEC = 4000.1; 
@@ -25,18 +25,30 @@ struct Particle
 };
 
 
+struct DisplayConfig
+{
+	float x0 = (float)WINDOW_WIDTH / 2;
+	float y0 = (float)WINDOW_HEIGHT / 2;
+	float scale = 1.0;
+};
+
+
+void print_dc(DisplayConfig dc);
+
 std::unordered_map<int, Particle> spawn_particles(
 	std::mt19937_64& rgen
 );
 
 void render_all(
 	SDL_Renderer *renderer,
-	const std::unordered_map<int, Particle>& particles
+	const std::unordered_map<int, Particle>& particles,
+	DisplayConfig dc
 );
 
 void render_all_particles(
 	SDL_Renderer *renderer,
-	const std::unordered_map<int, Particle>& particles
+	const std::unordered_map<int, Particle>& particles,
+	DisplayConfig dc
 );
 
 void update_particles_state(
@@ -45,5 +57,6 @@ void update_particles_state(
 
 void render_particle(
 	SDL_Renderer *renderer,
-	const Particle& p
+	const Particle& p,
+	DisplayConfig dc
 );

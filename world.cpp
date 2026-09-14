@@ -10,7 +10,7 @@ std::unordered_map<int, Particle> spawn_particles(
 {
 	int next_particle_id = 0;
 	std::unordered_map<int, Particle> particles;
-	std::uniform_real_distribution<double> dist(0, 1e-6);
+	std::uniform_real_distribution<double> dist(-1e-6, 1e-6);
 
 	for(int i=0; i<CNT_INIT_PARTICLES; ++i)
 	{
@@ -89,7 +89,7 @@ void update_particles_state(
 	for(auto& [id,p] : particles)
 	{
 		p.pos += p.v * TIME_DELTA_SEC;
-		handle_reflection(p);
+		// handle_reflection(p);
 	}
 	
 	// handle collisions
@@ -108,7 +108,7 @@ void update_particles_state(
 			float dy = p2.pos.y - p1.pos.y;
 			float d = sqrt(dx*dx + dy*dy);
 			
-			if(d < std::min(p1.m, p2.m))
+			if(d < std::max(p1.m, p2.m))
 			{
 				float inv = (1 / (p1.m + p2.m)); 
 				p1.v = inv * (p1.m * p1.v + p2.m * p2.v);
@@ -128,7 +128,8 @@ void update_particles_state(
 
 void render_all(
 	SDL_Renderer *renderer,
-	const std::unordered_map<int, Particle>& particles
+	const std::unordered_map<int, Particle>& particles,
+	DisplayConfig dc
 )
 {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
@@ -142,33 +143,55 @@ void render_all(
 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
 	SDL_RenderRect(renderer, &re);
 
-	render_all_particles(renderer, particles);
+	render_all_particles(renderer, particles, dc);
 
 	SDL_RenderPresent(renderer);
 }
 
 void render_all_particles(
 	SDL_Renderer *renderer,
-	const std::unordered_map<int, Particle>& particles
+	const std::unordered_map<int, Particle>& particles,
+	DisplayConfig dc
 )
 {
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
 
 	for(const auto& [id,p] : particles){
-		render_particle(renderer, p);
+		render_particle(renderer, p, dc);
 	} 
 }
 
+Vec map_cords(float x, float y, DisplayConfig dc)
+{
+	float x_display = (x - (dc.x0 - (float)WINDOW_WIDTH / 2)) / dc.scale;
+	float y_display = (y - (dc.y0 - (float)WINDOW_HEIGHT / 2)) / dc.scale;
+	return Vec(x_display, y_display);
+}
+	
 void render_particle(
 	SDL_Renderer *renderer,
-	const Particle& p
+	const Particle& p,
+	DisplayConfig dc
 )
 {
 	SDL_FRect rect;
-	rect.x = p.pos.x - p.m - 1;
-	rect.y = p.pos.y - p.m - 1;
-	rect.w = (2 * p.m + 1) / 2;
-	rect.h = (2 * p.m + 1) / 2;
+	Vec disp_cords = map_cords(
+				(p.pos.x - p.m - 1),
+				(p.pos.y - p.m - 1),
+				dc
+			);
+	rect.x = disp_cords.x;
+	rect.y = disp_cords.y;
+	rect.w = (2 * p.m + 1) * dc.scale;
+	rect.h = (2 * p.m + 1) * dc.scale;
 
 	SDL_RenderFillRect(renderer, &rect);
 }
+
+void print_dc(DisplayConfig dc)
+{
+	printf("(x0, y0) = (%.2f, %.2f)\n", dc.x0, dc.y0);
+	printf("(w, h) = (%.2f, %.2f) \n", (float)WINDOW_WIDTH / dc.scale, WINDOW_HEIGHT / dc.scale);
+	printf("scale = %.3f\n\n", dc.scale);
+}
+
