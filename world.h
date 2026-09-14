@@ -50,6 +50,11 @@ std::unordered_map<int, Particle> spawn_particles(
 	std::mt19937_64& rgen
 );
 
+void render_world_boundary(
+	SDL_Renderer *renderer,
+	const DisplayConfig& dc
+);
+
 void render_all(
 	SDL_Renderer *renderer,
 	const std::unordered_map<int, Particle>& particles,

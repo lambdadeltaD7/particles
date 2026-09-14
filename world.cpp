@@ -36,6 +36,13 @@ void render_text(
     SDL_DestroySurface(surface);
 }
 
+Vec map_cords(float x, float y, DisplayConfig dc)
+{
+	float x_display = (x - dc.x0) * dc.scale + (float)WINDOW_WIDTH / 2;
+	float y_display = (y - dc.y0) * dc.scale + (float)WINDOW_HEIGHT / 2;
+	return Vec(x_display, y_display);
+}
+
 std::unordered_map<int, Particle> spawn_particles(
 	std::mt19937_64& rgen
 )
@@ -160,6 +167,43 @@ void update_particles_state(
 
 }
 
+
+void render_world_boundary(
+	SDL_Renderer *renderer,
+	const DisplayConfig& dc
+)
+{
+	float half_w = WINDOW_WIDTH / (2.0f * dc.scale);
+	float half_h = WINDOW_HEIGHT / (2.0f * dc.scale);
+
+	float cam_left = dc.x0 - half_w;
+	float cam_right = dc.x0 + half_w;
+	float cam_top = dc.y0 - half_h;
+	float cam_bottom = dc.y0 + half_h;
+
+	bool near_left = cam_left <= -WORLD_WIDTH + half_w;
+	bool near_right = cam_right >= WORLD_WIDTH - half_w;
+	bool near_top = cam_top <= -WORLD_HEIGHT + half_h;
+	bool near_bottom = cam_bottom >= WORLD_HEIGHT - half_h;
+
+	if(!near_left && !near_right && !near_top && !near_bottom)
+		return;
+
+	Vec tl = map_cords(-WORLD_WIDTH, -WORLD_HEIGHT, dc);
+	Vec tr = map_cords(WORLD_WIDTH, -WORLD_HEIGHT, dc);
+	Vec br = map_cords(WORLD_WIDTH, WORLD_HEIGHT, dc);
+	Vec bl = map_cords(-WORLD_WIDTH, WORLD_HEIGHT, dc);
+
+	SDL_FRect world_rect;
+	world_rect.x = tl.x;
+	world_rect.y = tl.y;
+	world_rect.w = tr.x - tl.x;
+	world_rect.h = bl.y - tl.y;
+
+	SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+	SDL_RenderRect(renderer, &world_rect);
+}
+
 void render_all(
 	SDL_Renderer *renderer,
 	const std::unordered_map<int, Particle>& particles,
@@ -177,6 +221,8 @@ void render_all(
 	re.h=WINDOW_HEIGHT;
 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
 	SDL_RenderRect(renderer, &re);
+
+	render_world_boundary(renderer, dc);
 
 	render_all_particles(renderer, particles, dc);
 
@@ -199,12 +245,6 @@ void render_all_particles(
 	} 
 }
 
-Vec map_cords(float x, float y, DisplayConfig dc)
-{
-	float x_display = (x - dc.x0) * dc.scale + (float)WINDOW_WIDTH / 2;
-	float y_display = (y - dc.y0) * dc.scale + (float)WINDOW_HEIGHT / 2;
-	return Vec(x_display, y_display);
-}
 	
 void render_particle(
 	SDL_Renderer *renderer,
