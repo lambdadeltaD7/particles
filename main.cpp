@@ -1,5 +1,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_oldnames.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <iostream>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
@@ -22,6 +23,11 @@ int main()
 	SDL_Renderer* renderer = nullptr;
 
 	SDL_Init(SDL_INIT_VIDEO);
+	TTF_Init();
+	TTF_Font* font = TTF_OpenFont(
+    "/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf",
+    12
+);
 
 	SDL_CreateWindowAndRenderer("title here", WINDOW_WIDTH, WINDOW_HEIGHT, flags,  &window, &renderer);
 	SDL_SetRenderLogicalPresentation(renderer, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
@@ -43,7 +49,7 @@ int main()
 // 	particles[3].v = Vec(-1e-6, 1e-7);
 
 	update_particles_state(particles);
-	render_all(renderer, particles, dc);
+	render_all(renderer, particles, dc, font);
 	while(running)
 	{
 		while(SDL_PollEvent(&event)){
@@ -65,12 +71,12 @@ int main()
 					dc.y0 -= dc.scale * WINDOW_HEIGHT * 0.1;
 				else if(event.key.key == SDLK_C)
 					dc = DisplayConfig{};
-				print_dc(dc);	
+				// print_dc(dc);	
 			}
 		}
 
 		update_particles_state(particles);
-		render_all(renderer, particles, dc);
+		render_all(renderer, particles, dc, font);
 	}
 
 	SDL_DestroyWindow(window);

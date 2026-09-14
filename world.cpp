@@ -3,6 +3,38 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_render.h>
+#include <random>
+
+char buffer[256];	
+
+void render_text(
+    SDL_Renderer* renderer,
+    TTF_Font* font,
+    const char* text,
+    float x,
+    float y
+)
+{
+    SDL_Color color = {255, 255, 255, 255};
+
+    SDL_Surface* surface =
+        TTF_RenderText_Blended(font, text, 0, color);
+
+    SDL_Texture* texture =
+        SDL_CreateTextureFromSurface(renderer, surface);
+
+    SDL_FRect rect = {
+        x,
+        y,
+        (float)surface->w,
+        (float)surface->h
+    };
+
+    SDL_RenderTexture(renderer, texture, NULL, &rect);
+
+    SDL_DestroyTexture(texture);
+    SDL_DestroySurface(surface);
+}
 
 std::unordered_map<int, Particle> spawn_particles(
 	std::mt19937_64& rgen
@@ -52,6 +84,7 @@ void handle_reflection(Particle& p)
     p.v.x -= 2 * dot * n.x;
     p.v.y -= 2 * dot * n.y;
 }
+
 
 void update_particles_state(
 	std::unordered_map<int, Particle>& particles
@@ -123,13 +156,15 @@ void update_particles_state(
 			++it;
 		}
 	}
+	
 
 }
 
 void render_all(
 	SDL_Renderer *renderer,
 	const std::unordered_map<int, Particle>& particles,
-	DisplayConfig dc
+	DisplayConfig dc,
+	TTF_Font* font
 )
 {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
@@ -144,6 +179,9 @@ void render_all(
 	SDL_RenderRect(renderer, &re);
 
 	render_all_particles(renderer, particles, dc);
+
+	sprintf(buffer, "(x0,y0)=(%.2f,%.2f) | scale=%.2f | (w,h)=(%.2f,%.2f) | particles=%li", dc.x0, dc.y0, dc.scale, WINDOW_WIDTH * dc.scale, WINDOW_HEIGHT * dc.scale, particles.size());
+	render_text(renderer, font, buffer, 10.0, 0.0);
 
 	SDL_RenderPresent(renderer);
 }

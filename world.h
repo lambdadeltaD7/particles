@@ -4,10 +4,10 @@
 #include <SDL3/SDL_pixels.h>
 #include <random>
 #include <unordered_map>
-
+#include <SDL3_ttf/SDL_ttf.h>
 
 const int WINDOW_WIDTH  = 1200;
-const int WINDOW_HEIGHT = 800;
+const int WINDOW_HEIGHT = 600;
 const int CNT_INIT_PARTICLES = 8;
 const int RANDOM_SEED = 11;
 const int MAX_MASS = 2;
@@ -33,6 +33,14 @@ struct DisplayConfig
 };
 
 
+void render_text(
+    SDL_Renderer* renderer,
+    TTF_Font* font,
+    const char* text,
+    float x,
+    float y
+);
+
 void print_dc(DisplayConfig dc);
 
 std::unordered_map<int, Particle> spawn_particles(
@@ -42,7 +50,8 @@ std::unordered_map<int, Particle> spawn_particles(
 void render_all(
 	SDL_Renderer *renderer,
 	const std::unordered_map<int, Particle>& particles,
-	DisplayConfig dc
+	DisplayConfig dc,
+	TTF_Font* font
 );
 
 void render_all_particles(
