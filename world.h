@@ -50,14 +50,14 @@ std::unordered_map<int, Particle> spawn_particles(
 void render_all(
 	SDL_Renderer *renderer,
 	const std::unordered_map<int, Particle>& particles,
-	DisplayConfig dc,
+	const DisplayConfig& dc,
 	TTF_Font* font
 );
 
 void render_all_particles(
 	SDL_Renderer *renderer,
 	const std::unordered_map<int, Particle>& particles,
-	DisplayConfig dc
+	const DisplayConfig& dc
 );
 
 void update_particles_state(
@@ -67,5 +67,5 @@ void update_particles_state(
 void render_particle(
 	SDL_Renderer *renderer,
 	const Particle& p,
-	DisplayConfig dc
+	const DisplayConfig& dc
 );

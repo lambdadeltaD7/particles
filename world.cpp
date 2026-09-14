@@ -163,7 +163,7 @@ void update_particles_state(
 void render_all(
 	SDL_Renderer *renderer,
 	const std::unordered_map<int, Particle>& particles,
-	DisplayConfig dc,
+	const DisplayConfig& dc,
 	TTF_Font* font
 )
 {
@@ -189,7 +189,7 @@ void render_all(
 void render_all_particles(
 	SDL_Renderer *renderer,
 	const std::unordered_map<int, Particle>& particles,
-	DisplayConfig dc
+	const DisplayConfig& dc
 )
 {
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
@@ -209,7 +209,7 @@ Vec map_cords(float x, float y, DisplayConfig dc)
 void render_particle(
 	SDL_Renderer *renderer,
 	const Particle& p,
-	DisplayConfig dc
+	const DisplayConfig& dc
 )
 {
 	SDL_FRect rect;
