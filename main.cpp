@@ -22,16 +22,16 @@ void handle_key(
 		dc.scale = std::min(dc.scale + 0.1, 5.0);
 
 	else if(event.key.key == SDLK_RIGHT)
-		dc.x0 += dc.scale * WINDOW_WIDTH * 0.1;
+		dc.x0 +=  WINDOW_WIDTH * 0.1 / dc.scale;
 
 	else if(event.key.key == SDLK_LEFT)
-		dc.x0 -= dc.scale * WINDOW_WIDTH * 0.1;
+		dc.x0 -=  WINDOW_WIDTH * 0.1 / dc.scale;
 
 	else if(event.key.key == SDLK_DOWN)
-		dc.y0 += dc.scale * WINDOW_HEIGHT * 0.1;
+		dc.y0 +=  WINDOW_HEIGHT * 0.1 / dc.scale;
 
 	else if(event.key.key == SDLK_UP)
-		dc.y0 -= dc.scale * WINDOW_HEIGHT * 0.1;
+		dc.y0 -=  WINDOW_HEIGHT * 0.1 / dc.scale;
 
 	else if(event.key.key == SDLK_C)
 		dc = DisplayConfig{};

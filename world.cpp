@@ -42,7 +42,7 @@ std::unordered_map<int, Particle> spawn_particles(
 {
 	int next_particle_id = 0;
 	std::unordered_map<int, Particle> particles;
-	std::uniform_real_distribution<double> dist(-1e-6, 1e-6);
+	std::uniform_real_distribution<double> dist(-MAX_INIT_SPEED, MAX_INIT_SPEED);
 
 	for(int i=0; i<CNT_INIT_PARTICLES; ++i)
 	{
@@ -62,10 +62,10 @@ std::unordered_map<int, Particle> spawn_particles(
 }
 
 Vec is_out(const Particle& p){
-	if(p.pos.x < 0) return Vec(1,0);
-	if(p.pos.y < 0) return Vec(0,1);
-	if(p.pos.x > WINDOW_WIDTH-1) return Vec(-1,0);
-	if(p.pos.y > WINDOW_HEIGHT-1) return Vec(0,-1);
+	if(p.pos.x < -WORLD_WIDTH) return Vec(1,0);
+	if(p.pos.y < -WORLD_HEIGHT) return Vec(0,1);
+	if(p.pos.x > WORLD_WIDTH) return Vec(-1,0);
+	if(p.pos.y > WORLD_HEIGHT) return Vec(0,-1);
 	return Vec(0,0);
 }
 
@@ -122,7 +122,7 @@ void update_particles_state(
 	for(auto& [id,p] : particles)
 	{
 		p.pos += p.v * TIME_DELTA_SEC;
-		// handle_reflection(p);
+		handle_reflection(p);
 	}
 	
 	// handle collisions
@@ -141,7 +141,7 @@ void update_particles_state(
 			float dy = p2.pos.y - p1.pos.y;
 			float d = sqrt(dx*dx + dy*dy);
 			
-			if(d < std::max(p1.m, p2.m))
+			if((d < std::max(p1.m, p2.m)) && (p1.m+p2.m < 200))
 			{
 				float inv = (1 / (p1.m + p2.m)); 
 				p1.v = inv * (p1.m * p1.v + p2.m * p2.v);
@@ -180,7 +180,7 @@ void render_all(
 
 	render_all_particles(renderer, particles, dc);
 
-	sprintf(buffer, "(x0,y0)=(%.2f,%.2f) | scale=%.2f | (w,h)=(%.2f,%.2f) | particles=%li", dc.x0, dc.y0, dc.scale, WINDOW_WIDTH * dc.scale, WINDOW_HEIGHT * dc.scale, particles.size());
+	sprintf(buffer, "(x0,y0)=(%.2f,%.2f) | scale=%.2f | (w,h)=(%.2f,%.2f) | particles=%li", dc.x0, dc.y0, dc.scale, WINDOW_WIDTH / dc.scale, WINDOW_HEIGHT / dc.scale, particles.size());
 	render_text(renderer, font, buffer, 10.0, 0.0);
 
 	SDL_RenderPresent(renderer);
@@ -201,8 +201,8 @@ void render_all_particles(
 
 Vec map_cords(float x, float y, DisplayConfig dc)
 {
-	float x_display = (x - dc.x0) / dc.scale + (float)WINDOW_WIDTH / 2;
-	float y_display = (y - dc.y0) / dc.scale + (float)WINDOW_HEIGHT / 2;
+	float x_display = (x - dc.x0) * dc.scale + (float)WINDOW_WIDTH / 2;
+	float y_display = (y - dc.y0) * dc.scale + (float)WINDOW_HEIGHT / 2;
 	return Vec(x_display, y_display);
 }
 	
@@ -229,7 +229,7 @@ void render_particle(
 void print_dc(DisplayConfig dc)
 {
 	printf("(x0, y0) = (%.2f, %.2f)\n", dc.x0, dc.y0);
-	printf("(w, h) = (%.2f, %.2f) \n", (float)WINDOW_WIDTH / dc.scale, WINDOW_HEIGHT / dc.scale);
+	printf("(w, h) = (%.2f, %.2f) \n", (float)WINDOW_WIDTH * dc.scale, WINDOW_HEIGHT * dc.scale);
 	printf("scale = %.3f\n\n", dc.scale);
 }
 
